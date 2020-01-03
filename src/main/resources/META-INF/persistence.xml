@@ -9,6 +9,11 @@
     <class>com.developer.SpringMySQL.models.SubDistrict</class>
     <class>com.developer.SpringMySQL.models.Role</class>
     <class>com.developer.SpringMySQL.models.User</class>
+    <class>com.developer.SpringMySQL.models.RowAccess</class>
+    <class>com.developer.SpringMySQL.models.Company</class>
+    <class>com.developer.SpringMySQL.models.Vacancy</class>
+    <class>com.developer.SpringMySQL.models.Jobs</class>
+    <class>com.developer.SpringMySQL.models.ProcessStatus</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/hr_recruitment?zeroDateTimeBehavior=convertToNull"/>
       <property name="javax.persistence.jdbc.user" value="root"/>

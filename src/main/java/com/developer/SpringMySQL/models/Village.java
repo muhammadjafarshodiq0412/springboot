@@ -49,8 +49,7 @@ public class Village implements Serializable {
     @Size(min = 1, max = 50)
     @Column(name = "name")
     private String name;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "candidate")
-    private Collection<Candidate> candidateCollection;
+    
     @JoinColumn(name = "sub_district", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private SubDistrict subDistrict;
@@ -83,14 +82,14 @@ public class Village implements Serializable {
         this.name = name;
     }
 
-    @XmlTransient
-    public Collection<Candidate> getCandidateCollection() {
-        return candidateCollection;
-    }
-
-    public void setCandidateCollection(Collection<Candidate> candidateCollection) {
-        this.candidateCollection = candidateCollection;
-    }
+//    @XmlTransient
+//    public Collection<Candidate> getCandidateCollection() {
+//        return candidateCollection;
+//    }
+//
+//    public void setCandidateCollection(Collection<Candidate> candidateCollection) {
+//        this.candidateCollection = candidateCollection;
+//    }
 
     public SubDistrict getSubDistrict() {
         return subDistrict;

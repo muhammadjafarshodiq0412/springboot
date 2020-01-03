@@ -171,9 +171,8 @@ public class Candidate implements Serializable {
     @JoinColumn(name = "user", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private User user;
-    @JoinColumn(name = "candidate", referencedColumnName = "id")
-    @ManyToOne(optional = false)
-    private Village candidate;
+    @Column(name = "village")
+    private int village;
 
     public Candidate() {
     }
@@ -390,12 +389,12 @@ public class Candidate implements Serializable {
         this.user = user;
     }
 
-    public Village getCandidate() {
-        return candidate;
+    public int getVillage() {
+        return village;
     }
 
-    public void setCandidate(Village candidate) {
-        this.candidate = candidate;
+    public void setVillage(int village) {
+        this.village = village;
     }
 
     @Override
@@ -422,5 +421,5 @@ public class Candidate implements Serializable {
     public String toString() {
         return "com.developer.SpringMySQL.models.Candidate[ id=" + id + " ]";
     }
-    
+
 }

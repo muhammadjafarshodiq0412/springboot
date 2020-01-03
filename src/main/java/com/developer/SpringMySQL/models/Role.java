@@ -8,6 +8,7 @@ package com.developer.SpringMySQL.models;
 import java.io.Serializable;
 import java.util.Collection;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -35,9 +36,6 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "Role.findByName", query = "SELECT r FROM Role r WHERE r.name = :name")})
 public class Role implements Serializable {
 
-    @OneToMany(mappedBy = "role")
-    private Collection<User> userCollection;
-
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,6 +47,8 @@ public class Role implements Serializable {
     @Size(min = 1, max = 25)
     @Column(name = "name")
     private String name;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "role")
+    private Collection<RowAccess> rowAccessCollection;
 
     public Role() {
     }
@@ -78,6 +78,15 @@ public class Role implements Serializable {
         this.name = name;
     }
 
+    @XmlTransient
+    public Collection<RowAccess> getRowAccessCollection() {
+        return rowAccessCollection;
+    }
+
+    public void setRowAccessCollection(Collection<RowAccess> rowAccessCollection) {
+        this.rowAccessCollection = rowAccessCollection;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;
@@ -101,15 +110,6 @@ public class Role implements Serializable {
     @Override
     public String toString() {
         return "com.developer.SpringMySQL.models.Role[ id=" + id + " ]";
-    }
-
-    @XmlTransient
-    public Collection<User> getUserCollection() {
-        return userCollection;
-    }
-
-    public void setUserCollection(Collection<User> userCollection) {
-        this.userCollection = userCollection;
     }
     
 }

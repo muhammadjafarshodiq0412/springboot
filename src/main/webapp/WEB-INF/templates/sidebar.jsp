@@ -22,24 +22,18 @@
                             href="javascript:void(0)" aria-expanded="false"><i class="mdi mdi-receipt"></i>
                             <span class="hide-menu">Management Data </span></a>
                             <ul aria-expanded="false" class="collapse  first-level">
-                                <li class="sidebar-item"><a href="employeeServlet?action=list" class="sidebar-link">
-                                        <i class="far fa-address-card"></i><span class="hide-menu"> Employee </span></a>
+                                <li class="sidebar-item"><a href="/vacancyview" class="sidebar-link">
+                                        <i class="far fa-address-card"></i><span class="hide-menu"> Vacancy</span></a>
                                 </li>
-                                <li class="sidebar-item"><a href="departmentServlet?action=list" class="sidebar-link">
-                                       <i class="far fa-building"></i><span class="hide-menu"> Department </span></a>
+                                <li class="sidebar-item"><a href="/statusApply" class="sidebar-link">
+                                        <i class="far fa-address-card"></i><span class="hide-menu">Process Status</span></a>
                                 </li>
-                                <li class="sidebar-item"><a href="locationServlet?action=list" class="sidebar-link">
-                                      <i class="fas fa-map"></i><span class="hide-menu"> Location </span></a>
-                                </li>
-                                <li class="sidebar-item"><a href="countryServlet?action=list" class="sidebar-link">
-                                       <i class="fas fa-globe"></i><span class="hide-menu"> Country </span></a>
-                                </li>
-                                <li class="sidebar-item"><a href="jobServlet?action=list" class="sidebar-link">
-                                      <i class="fas fa-briefcase"></i><span class="hide-menu"> Job </span></a>
-                                </li>
-                                <li class="sidebar-item"><a href="regionServlet?action=list" class="sidebar-link">
-                                    <i class="far fa-compass"></i><span class="hide-menu"> Region </span></a>
-                                </li>
+<!--                                <li class="sidebar-item"><a href="/vacancyview" class="sidebar-link">
+                                        <i class="far fa-address-card"></i><span class="hide-menu"> Vacancy View </span></a>
+                                </li>-->
+<!--                                <li class="sidebar-item"><a href="/candidate" class="sidebar-link">
+                                        <i class="far fa-address-card"></i><span class="hide-menu"> Candidate Insert </span></a>
+                                </li>-->
                             </ul>
                         </li>
                         

@@ -5,14 +5,14 @@
  */
 package com.developer.SpringMySQL.controllers;
 
-import com.developer.SpringMySQL.models.Role;
+import com.developer.SpringMySQL.models.RowAccess;
 import com.developer.SpringMySQL.models.User;
 import com.developer.SpringMySQL.repository.RoleRepository;
+import com.developer.SpringMySQL.repository.RowAccessRepository;
 import com.developer.SpringMySQL.repository.UserRepository;
+import com.developer.SpringMySQL.repository.VacancyRepository;
 import com.developer.SpringMySQL.tools.BCrypt;
 import com.developer.SpringMySQL.tools.HtmlSendMail;
-import com.oracle.xmlns.internal.webservices.jaxws_databinding.ObjectFactory;
-import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,8 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -36,15 +34,38 @@ public class UserController {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private RowAccessRepository rowAccessRepository;
+
+    @Autowired
+    private VacancyRepository vacancyRepository;
 //    HttpSession session;
 //    @RequestMapping("/")
 //    public ModelAndView index() {
 //        ModelAndView mv = new ModelAndView("index");
 //        return mv;
 //    }
+
+    /**
+     * view login frontend
+     *
+     * @return
+     */
     @RequestMapping("/")
     public ModelAndView login() {
-        ModelAndView mv = new ModelAndView("login");
+        ModelAndView mv = new ModelAndView("frontend_login");
+        return mv;
+    }
+
+    /**
+     * view login backend
+     *
+     * @return
+     */
+    @RequestMapping("/employee")
+    public ModelAndView loginBackend() {
+        ModelAndView mv = new ModelAndView("login_backend");
+        mv.addObject("lists", roleRepository.getAllRoleBackend("3"));
         return mv;
     }
 
@@ -55,20 +76,22 @@ public class UserController {
      */
     @RequestMapping("/register")
     public ModelAndView register() {
-        ModelAndView mv = new ModelAndView("/register");
+        ModelAndView mv = new ModelAndView("/frontend_register");
         return mv;
     }
+
     @RequestMapping("/dashboard")
     public ModelAndView dashboard() {
         ModelAndView mv = new ModelAndView("adminIndex");
         return mv;
     }
 
-//    @RequestMapping("/")
-//    public String home(Model model) {
-//        model.addAttribute("lists",appRepo.findAll());
-//        return "index";
-//    }
+    @RequestMapping("/candidateform")
+    public ModelAndView candidate_form() {
+        ModelAndView mv = new ModelAndView("frontend_candidate_main");
+        return mv;
+    }
+
     @RequestMapping(value = "/user/save", method = RequestMethod.POST)
     public ModelAndView doRegister(@RequestParam("id") String id, @RequestParam("username") String username, @RequestParam("password") String password,
             @RequestParam("password1") String password1, @RequestParam("email") String email) {
@@ -78,36 +101,90 @@ public class UserController {
         if (account != null) { //cek username
             mv.addObject("flash", "Failed");
             mv.addObject("message", "username");
-            mv = new ModelAndView("redirect:/register");
+            mv = new ModelAndView("redirect:/frontend_register");
         } else {
             if (password.equals(password1)) { //cek password
                 mv.addObject("flash", "Registered");
-                userRepository.save(new User(username, BCrypt.hashpw(password, BCrypt.gensalt()), email, 0, new Role(3)));
+                userRepository.save(new User(username, BCrypt.hashpw(password, BCrypt.gensalt()), email, 0));
 //                ambil id yang didaftarkan berdasarkan username
-//                UserAccount userAccount = (UserAccount) dao.selectByField("UserAccount", "username", username);
                 new HtmlSendMail().send(email, username);
                 mv = new ModelAndView("redirect:/");
 //            response.sendRedirect("loginView.jsp");
             } else {
                 mv.addObject("flash", "Failed");
                 mv.addObject("message", "username");
-                mv = new ModelAndView("redirect:/register");
+                mv = new ModelAndView("redirect:/frontend_register");
             }
         }
         return mv;
-//        User user;
-//        if (!id.isEmpty()) {
-//            user = (User) userRepository.findOne(Integer.parseInt(id));
-//        } else {
-//            user = new User();
-//        }
-//
-//        new HtmlSendMail().send(email, username);
-//        mv.addObject("flash", "Success");
-
     }
 
+    /**
+     * login khusus backend : admin, HR , Employee
+     *
+     * @param username
+     * @param password
+     * @param role
+     * @return
+     */
     @RequestMapping(value = "/login", method = RequestMethod.POST)
+    public ModelAndView actionLoginBackEnd(@RequestParam("username") String username, @RequestParam("password") String password,
+            @RequestParam("role") int role) {
+        User user = userRepository.getByName(username); //cari Id by username
+        ModelAndView mv = new ModelAndView();
+//        cek user sudahterdaftar ?
+        if (user != null) {
+//            cek akun aktif?
+            if (user.getStatus() == 1) {
+//                cek password
+                if (BCrypt.checkpw(password, user.getPassword())) {
+//                    cek role
+                    RowAccess rowAccess = rowAccessRepository.getUserRole(user.getId().toString(), role); //dapat role user
+                    if (rowAccess != null) { //cek di tbl row access apakah ada user nya
+                        if (rowAccess.getRole() == 1) { //if admin
+                            mv = new ModelAndView("adminIndex");
+//                    session.setAttribute("id", Integer.toString(user.getId()));
+                            mv.addObject("id", Integer.toString(user.getId()));
+                        } else if (rowAccess.getRole() == 2) { //if HR
+                            mv = new ModelAndView("hr_vacancyview");
+                            mv.addObject("listVacancy", vacancyRepository.findAll());
+                            mv.addObject("id", Integer.toString(user.getId()));
+                        } else if (rowAccess.getRole() == 4) { //if Accountant
+                            mv = new ModelAndView("accountantIndex");
+//                    session.setAttribute("id", Integer.toString(user.getId()));
+                            mv.addObject("id", Integer.toString(user.getId()));
+                        } else {
+                            mv = new ModelAndView("redirect:/employee");
+                            mv.addObject("flash", "You don't have access to this role");
+                        }
+                    } else {
+                        mv = new ModelAndView("redirect:/employee");
+                        mv.addObject("flash", "You don't have access to this role");
+                    }
+
+                } else { //password salah
+                    mv = new ModelAndView("redirect:/employee");
+                    mv.addObject("flash", "Password");
+                }
+            } else { // akun blm aktif
+                mv = new ModelAndView("redirect:/employee");
+                mv.addObject("flash", "Activated");
+            }
+        } else { //user blm terdaftar
+            mv = new ModelAndView("redirect:/employee");
+            mv.addObject("flash", "Register");
+        }
+        return mv;
+    }
+
+    /**
+     * login frontend : Candidate
+     *
+     * @param username
+     * @param password
+     * @return
+     */
+    @RequestMapping(value = "/loginuser", method = RequestMethod.POST)
     public ModelAndView login(@RequestParam("username") String username, @RequestParam("password") String password) {
         User user = userRepository.getByName(username); //cari Id by username
         ModelAndView mv = new ModelAndView();
@@ -117,11 +194,14 @@ public class UserController {
             if (user.getStatus() == 1) {
 //                cek password
                 if (BCrypt.checkpw(password, user.getPassword())) {
-                    mv = new ModelAndView("adminIndex");
+//                    mv = new ModelAndView("frontend_candidate_main");
+//                    mv = new ModelAndView("redirect:/career");
+                    mv = new ModelAndView("frontend_vacancy");
 //                    session.setAttribute("id", Integer.toString(user.getId()));
-                    mv.addObject("id", Integer.toString(user.getId()));
+                    mv.addObject("vacancy", vacancyRepository.findAll());
+                    mv.addObject("user", user);
                 } else { //password salah
-                    mv = new ModelAndView("redirect:/");
+
                     mv.addObject("flash", "Password");
                 }
             } else { // akun blm aktif
@@ -138,12 +218,14 @@ public class UserController {
     @RequestMapping(value = "/user/verification/{username}", method = RequestMethod.GET)
     public ModelAndView verification(@PathVariable("username") String username) {
         ModelAndView mv = new ModelAndView("redirect:/");
-        //        user = (User) userRepository.findOne(Integer.parseInt(id.getUsername().toString()));
+//            User user = (User) userRepository.findOne(Integer.parseInt(id.getUsername().toString()));
         User user;
-        User id = userRepository.getByName(username); //cari Id by username
-        User product = userRepository.findOne(id.getId());
+        Integer id = userRepository.getByName(username).getId(); //get Id by username
+        User product = userRepository.findOne(id);
         product.setStatus(1);
         userRepository.save(product);
+
+        rowAccessRepository.save(new RowAccess(id, 3));
         mv.addObject("flash", "Success");
         return mv;
     }

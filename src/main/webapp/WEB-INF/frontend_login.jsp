@@ -66,7 +66,7 @@
                                 </script>
                             </div>
                             <div class="login-form">
-                                <form action="/login" method="post">
+                                <form action="/loginuser" method="post">
                                     <div class="form-group">
                                         <% String name;
                                             String cekname = request.getParameter("username");
